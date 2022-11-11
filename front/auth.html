@@ -1,0 +1,126 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Code</title>
+</head>
+<style>
+    .title {
+        margin-top: 10rem;
+        font-size: 2.3rem;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .tfaInput {
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: center;
+        font-size: 32px;
+    }
+
+    footer {
+        position: fixed;
+        font-family: Arial, Helvetica, sans-serif;
+
+        font-size: 32px;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: red;
+        color: white;
+        text-align: center;
+    }
+
+    button {
+        border: none;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 26px;
+        margin-top: 10rem;
+        width: 20rem;
+        font-size: 40px;
+        color: white;
+        border-radius: 25px;
+        background-color: rgb(0, 237, 0);
+    }
+</style>
+
+<body>
+
+    <center>
+        <h2 class="title">TwoFactory<br>Authenticator</h2>
+    </center>
+    <center>
+        <div>
+
+            <input id="tfainput" class="tfaInput" maxlength="6" placeholder="Enter the CODE" type="text"><br>
+            <button id="authbtn"onclick="auth()">CHECK</button>
+
+
+
+        </div>
+    </center>
+    <footer>
+        <p class="tfaText">Changing code in <b><span id="timecount"></span></b> secs</p>
+    </footer>
+</body>
+<script src="./hash.js"></script>
+<script src="./qrcode.js"></script>
+<script>
+    const authoutput = document.getElementById("authoutput")
+    const timecount = document.getElementById("timecount")
+    const tfaInput = document.getElementById("tfainput")
+    const authbtn = document.getElementById("authbtn")
+    let input = {
+        seedBrute: "123456"
+    }
+
+    function getRoundedTime() {
+        // Create and return the current date but rounded
+        let fullDate = new Date()
+        let roundedDate = new Date()
+
+        if (fullDate.getSeconds() < 30) {
+            roundedDate.setSeconds(0)
+        } else {
+            roundedDate.setSeconds(30)
+        }
+        timecount.innerHTML = 30 - (fullDate.getSeconds() - roundedDate.getSeconds())
+        console.log(` + Changing in ${30 - (fullDate.getSeconds() - roundedDate.getSeconds())} seconds!`)
+        return roundedDate
+    }
+
+    function createSeed(roundedDate) {
+        // Concatenate the brute seed string and the rounded UTC Date, and gen a SHA256 Hash
+        let result = sha256(input.seedBrute + roundedDate)
+        return result
+    }
+
+
+    function authCode(input) {
+
+        let cleanHash = input.replace(/\D/g, '')
+
+        console.log(`TFA Code: ${cleanHash.substring(0, 6)}`)
+        return cleanHash.substring(0, 6)
+    }
+
+    function auth() {
+        if (tfaInput.value.length < 6) {
+         alert("The TFA code have more then 5 numbers")
+        } else {
+            if (tfaInput.value == authCode(createSeed(getRoundedTime()))) {
+                alert("Access allowed")
+                authbtn.style.display = "none"
+            } else {
+                alert("Access denied")
+            }
+        }
+    }
+    var intervalId = window.setInterval(function () {
+
+        authCode(createSeed(getRoundedTime()))
+    }, 1000);
+
+</script>
+
+</html>

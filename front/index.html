@@ -1,0 +1,99 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Code</title>
+</head>
+<style>
+    .title {
+        margin-top: 10rem;
+        font-size: 2.3rem;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .tfaText {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 32px;
+    }
+
+    footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: red;
+        color: white;
+        text-align: center;
+    }
+</style>
+
+<body>
+
+    <center>
+        <h2 class="title">TwoFactory<br>Authenticator</h2>
+    </center>
+    <center>
+        <div>
+
+            <p class="tfaText">AuthCode: <b><span id="authoutput"></span></b></p>
+
+            <div id="qrcode"></div>
+
+        </div>
+    </center>
+    <footer>
+        <p class="tfaText">Changing code in <b><span id="timecount"></span></b> secs</p>
+    </footer>
+</body>
+<script src="./hash.js"></script>
+<script src="./qrcode.js"></script>
+<script>
+    const authoutput = document.getElementById("authoutput")
+    const timecount = document.getElementById("timecount")
+    let input = {
+        seedBrute: "123456"
+    }
+
+    function getRoundedTime() {
+        // Create and return the current date but rounded
+        let fullDate = new Date()
+        let roundedDate = new Date()
+
+        if (fullDate.getSeconds() < 30) {
+            roundedDate.setSeconds(0)
+        } else {
+            roundedDate.setSeconds(30)
+        }
+        timecount.innerHTML = 30 - (fullDate.getSeconds() - roundedDate.getSeconds())
+        console.log(` + Changing in ${30 - (fullDate.getSeconds() - roundedDate.getSeconds())} seconds!`)
+        return roundedDate
+    }
+
+    function createSeed(roundedDate) {
+        // Concatenate the brute seed string and the rounded UTC Date, and gen a SHA256 Hash
+        let result = sha256(input.seedBrute + roundedDate)
+        return result
+    }
+
+    function qrCodeGen(input) {
+        let inqrcode = document.getElementById("qrcode")
+        inqrcode.innerHTML = ""
+        new QRCode(document.getElementById("qrcode"), input);
+
+    }
+    function authCode(input) {
+
+        let cleanHash = input.replace(/\D/g, '')
+        authoutput.innerHTML = cleanHash.substring(0, 6)
+        console.log(`TFA Code: ${cleanHash.substring(0, 6)}`)
+        return cleanHash.substring(0, 6)
+    }
+    var intervalId = window.setInterval(function () {
+        qrCodeGen(authCode(createSeed(getRoundedTime())))
+        authCode(createSeed(getRoundedTime()))
+    }, 1000);
+
+</script>
+
+</html>

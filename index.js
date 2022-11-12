@@ -10,6 +10,7 @@ let input = {
 
 
 
+motd()
 
 function createSeed(roundedDate) {
     // Concatenate the brute seed string and the rounded UTC Date, and gen a SHA256 Hash
@@ -19,6 +20,14 @@ function createSeed(roundedDate) {
 function getFullDate(){
     let fullDate = new Date()
     return fullDate
+}
+function motd(){
+    console.log(` 🔐 Welcome to TFA.JS`)
+    console.log(` 💻 Developed by github.com/mavinsi`)
+    console.log("")
+    console.log(` 🗝️ Your Seed: ${input.seedBrute}`)
+    console.log(` ⏰ Actual Date: ${getFullDate()}`)
+
 }
 function getRoundedTime() {
     // Create and return the current date but rounded
@@ -40,21 +49,25 @@ function authCode(input) {
 
     return cleanHash.substring(0, 6)
 }
-let myVar = setInterval(function () { timer() }, 1000);
+
+
+setTimeout(function(){
+    let myVar = setInterval(function () { timer() }, 1000);
 
 function timer() {
     console.clear()
     let finalTFA = authCode(createSeed(getRoundedTime()))
+    
     console.log(` ⌚ Changing in ${30 - (getFullDate().getSeconds() - getRoundedTime().getSeconds())} seconds!`)
   
-    console.log(` 🔐 TFA Code: ${finalTFA.slice(0,3)}-${finalTFA.slice(3)}`)
+    console.log(` 🔑 TFA Code: ${finalTFA.slice(0,3)}-${finalTFA.slice(3)}`)
     console.log("")
     QRCode.toString(finalTFA, { type: 'terminal' }, function (err, url) {
         console.log(url)
     })
 }
 
-
+}, 5000);
 
 
 

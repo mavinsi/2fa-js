@@ -11,11 +11,18 @@
         text-align: center;
         font-family: Arial, Helvetica, sans-serif;
     }
-
+ p {
+        font-size: 1rem;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+    }
     .tfaInput {
         font-family: Arial, Helvetica, sans-serif;
         text-align: center;
         font-size: 32px;
+        width: 80%;
+        margin-right: 5px;
+        margin-left: 5px;
     }
 
     footer {
@@ -52,24 +59,26 @@
     <center>
         <div>
 
-            <input id="tfainput" class="tfaInput" maxlength="6" placeholder="Enter the CODE" type="text"><br>
-            <button id="authbtn"onclick="auth()">CHECK</button>
+            <input id="tfainput" class="tfaInput" maxlength="6" placeholder="Enter the CODE" type="number"><br>
+       <p>Status: <span id="tfastatus"></span></p>
 
 
 
         </div>
-    </center>
+        <button id="authbtn"onclick="auth()">CHECK</button>
+    <!-- </center>
     <footer>
         <p class="tfaText">Changing code in <b><span id="timecount"></span></b> secs</p>
-    </footer>
+    </footer> -->
 </body>
 <script src="./hash.js"></script>
 <script src="./qrcode.js"></script>
 <script>
     const authoutput = document.getElementById("authoutput")
-    const timecount = document.getElementById("timecount")
     const tfaInput = document.getElementById("tfainput")
     const authbtn = document.getElementById("authbtn")
+    const tfastatus = document.getElementById("tfastatus")
+    tfastatus.innerHTML = "Waiting code..."
     let input = {
         seedBrute: "123456"
     }
@@ -84,7 +93,7 @@
         } else {
             roundedDate.setSeconds(30)
         }
-        timecount.innerHTML = 30 - (fullDate.getSeconds() - roundedDate.getSeconds())
+        // timecount.innerHTML = 30 - (fullDate.getSeconds() - roundedDate.getSeconds())
         console.log(` + Changing in ${30 - (fullDate.getSeconds() - roundedDate.getSeconds())} seconds!`)
         return roundedDate
     }
@@ -109,10 +118,11 @@
          alert("The TFA code have more then 5 numbers")
         } else {
             if (tfaInput.value == authCode(createSeed(getRoundedTime()))) {
-                alert("Access allowed")
-                authbtn.style.display = "none"
+                tfastatus.style.color = "lime"
+                tfastatus.innerHTML = "ACCESS ALLOWED"
             } else {
-                alert("Access denied")
+                tfastatus.style.color = "red"
+                tfastatus.innerHTML = "ACCESS DENIED"
             }
         }
     }
